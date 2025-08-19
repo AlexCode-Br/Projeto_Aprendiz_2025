@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "the-slate-469515-d5",
+  "private_key_id": "48eaeabb8f22036ba66f014a5457b682f7726b20",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDgYt1OqYBPU2Uq\nZWgca54d7yCvaIPpHiBKTANpzzwsWZ8QuBgd8rUxAmx3qRQEbPLEDLfY4CRa/DMz\nL2oIRltp3AUhgs8QHQaoZT/LuGB3Fwrtky5CBllaAykifsNypg7ts/bU5F/uYIvT\ndE50w9UXIIOea6/1PXVOMbrHb0Z1hQTYd0vRXqfGVdOfmooBH+2lD+6HGjjyfsei\n7aywznoUtGHcAN1Gk64infIZMtFFr6ijYovubtVdXMBx2F4XVZ33TcQijCGkGQ9I\nPuEtMOSczRHwS/vvzKUm8n+Gawfbh95wNCAqHh/kUe6t8Frq1fdEOCeTkhZZJwt8\nErNoPw0rAgMBAAECggEACSmgVdmLfZ94ToMIIgat1PCErrvWQ6+sh05vBvZbjNE2\n6b8mJPZaFcQZ/8hSa+6y+oa/kWrdsS6UqlyNJgUReIomeupC8pg1+hoXLqrfdq/A\nVlgNhafStxZjYcOl88mMa13hfkaVpxtEKCUIr7FdwzZtrgtmQZSxBt4/j5D69JN7\nEcv2OQPzCjjPVPEiLJOuzGR5g0zMpM0UDe2SA9U2B0SQ1kLXKlyFTeScf8J+5GkC\n+y4VQeDwao0fZVUnmt9qYkclMmY6e/oDhucvokyP48vwC2pzP3UpewWsOFttk+hg\nHgDulLmgskKW4aGdzqwLu6y3Pd8E4XnWqXC4qelzcQKBgQD94glekPdXRSygvs71\nZLAQ07L8EV2JfwyhuK56h4Qm1an7ibQcK7+X9Nz+79Tg6+IvfKNgnNtV9FQb/nGi\nrkExalpd4m4QHZOKbOQwFPV2t5AzvqNs5YU1gpcGJwwBmu4Ec/yWkT4TDNgvf7bT\nx3E9xx0kaUa+Qw9Hf50KXUuocwKBgQDiQdx3iYasCOq8ApLJz+bv5tHI0I6RpKtI\n3xAtefN+Jt0g+IiARNpuo2x1Sse3sCNhKdC+FBpEp8o1cQoEH4dlg8V96Iw9Lnd2\no4enwWwhJ8rsttMXYNNrhlGuEJE5j/ZaNycKrOchM2CoGvoMtO8NH1DSg4Usf/zw\ns3muh82yaQKBgQCDtFUD99Q4M6x5H0MhzkAAGrKJTUDm6T/WTYZGDjMiKklqMf97\ndb6IyAA1SJl4rSXDWLcwkW6/YmaXtyGgMSGkzvVeKu7J8W3uq5qczuKf2Y43KbiB\n73dxUPOjv3HdC1BagwkP2v0GyO0Fhw2DQ72dPMQDdZG7dfJhNvRywf9TvQKBgQCI\nfE5wVafFs4NWcv71etLGuSinyReXyAwDY3ww0rYNzYfrUcGWDvLtduwAPWII7toI\nzN69KwdFjyot3si6AAL/O+Qwtc2TQqqSCMfWbJm7znNdJFRmb+RZoqc3J4tTfAKS\nHV8R04eBwap2/f8FF0h1VAS/WNNHKtX8pWer3wQ4sQKBgBCOFLEhGnsK8WdWAFZr\n1ImK3PL/Y1DOKSCGwuHjzbWWDYQ2tne08HO+dmWmBHdTbPmMPRRyRz9ZH6TctiHp\nEzBOmszNAsHmateJFEWKpUgRkBOSJDx2HKycGCFx/P14Se84tYw6a+hP55fAOtCE\npB4Po2N1N+Do6hR1AsNy020h\n-----END PRIVATE KEY-----\n",
+  "client_email": "inscricoes-projeto-aprendiz@the-slate-469515-d5.iam.gserviceaccount.com",
+  "client_id": "107983031680307040083",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/inscricoes-projeto-aprendiz%40the-slate-469515-d5.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
