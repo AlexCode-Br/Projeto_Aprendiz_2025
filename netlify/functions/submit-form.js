@@ -272,7 +272,7 @@ async function sendConfirmationEmail(email, nomeCompleto, curso, local, formData
 
     Object.assign(sendSmtpEmailNotif, {
         to: recipients,
-        sender: { name: "Sistema de Inscrição", email: "nao-responda@seu-dominio-verificado.com" }, // IMPORTANTE: Mude para seu e-mail verificado na Brevo
+        sender: { name: "Sistema de Inscrição", email: "icmprojetoaprendizsalvador@gmail.com'" }, // IMPORTANTE: Mude para seu e-mail verificado na Brevo
         subject: notificationSubject,
         htmlContent: notificationBody,
     });
