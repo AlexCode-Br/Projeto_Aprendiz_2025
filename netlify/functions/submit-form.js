@@ -233,7 +233,7 @@ async function sendConfirmationEmail(email, nomeCompleto, curso, local, formData
     const sendSmtpEmailAluno = new SibApiV3Sdk.SendSmtpEmail();
     Object.assign(sendSmtpEmailAluno, {
         to: [{ email: email, name: nomeCompleto }],
-        sender: { name: "Projeto Aprendiz", email: "nao-responda@seu-dominio-verificado.com" }, // IMPORTANTE: Mude para seu e-mail verificado na Brevo
+        sender: { name: "Projeto Aprendiz", email: "icmprojetoaprendizsalvador@gmail.com" }, // IMPORTANTE: Mude para seu e-mail verificado na Brevo
         subject: subjectAluno,
         htmlContent: emailBodyAluno,
     });
