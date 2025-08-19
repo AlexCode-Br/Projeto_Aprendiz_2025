@@ -958,20 +958,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         throw new Error(data.message || 'Ocorreu um erro desconhecido.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error!', error);
-                    loaderOverlay.classList.remove('loading');
-                    const formStatus = document.getElementById('form-status-inscricao');
-                    if(formStatus) {
-                        formStatus.textContent = 'Ocorreu um erro. Tente novamente.';
-                        formStatus.style.color = 'var(--error-color)';
-                    }
-                     setTimeout(() => {
-                        loaderOverlay.classList.remove('show');
-                        if(formStatus) formStatus.textContent = '';
-                       }, 4000);
-                });
-        });
+                                    .catch(error => {
+                        console.error('Error!', error);
+                        loaderOverlay.classList.remove('loading');
+                        loaderOverlay.classList.add('duplicate'); // Reutiliza o estilo de erro
+
+                        const iconContainer = loaderOverlay.querySelector('#feedback-icon-container');
+                        const textContainer = loaderOverlay.querySelector('#feedback-text-container');
+                        
+                        // Adiciona o ícone de erro e a mensagem
+                        if (iconContainer) iconContainer.innerHTML = duplicateIconSVG; // Reutiliza o ícone de 'duplicado' para erro
+                        if (textContainer) textContainer.textContent = 'Ocorreu um erro. Tente novamente.';
+
+                        // Mantém a mensagem de erro visível por alguns segundos
+                        setTimeout(() => {
+                            loaderOverlay.classList.remove('show', 'duplicate');
+                        }, 5000); // Aumenta o tempo para 5 segundos
+                    });
     }
 
     function setupScrollAnimations() {
