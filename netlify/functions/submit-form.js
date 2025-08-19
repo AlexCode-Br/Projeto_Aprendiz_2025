@@ -146,7 +146,7 @@ exports.handler = async (event) => {
                     formDataTeoria['instrumento'] = cursoTeoria;
                     formDataTeoria['local'] = "Remoto";
                     formDataTeoria['possui-instrumento'] = 'N/A';
-                    formDataTeoria['experiencia-relate'] = 'Inscrito automaticamente com curso de instrumento';
+                    formDataTeoria['experiencia-relate'] = 'Inscrição Automática';
 
                     await appendRowToSheet(sheets, headers, formDataTeoria);
                     await sendConfirmationEmail(email, nomeCompleto, cursoTeoria, "Remoto", formDataTeoria);
