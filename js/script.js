@@ -912,7 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
             iconContainer.innerHTML = ''; textContainer.textContent = '';
             loaderOverlay.classList.add('show', 'loading');
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwr2FcV-8pZnR7_Of3CQ0E4-QKE8v8Gn02M-HM5EYyB8DLbYkPLWXPJ9DBS8SXbCG9Wbg/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbw5-sjrVIw2cfPOMc6bcuk8UC78q-OrPNjoXqiAXaBx0195i_pxFe2DZbNs3_HuOlvR/exec';
 
             const formData = new FormData(form);
 
