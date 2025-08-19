@@ -105,7 +105,7 @@ function doPost(e) {
           formDataTeoria['instrumento'] = cursoTeoria;
           formDataTeoria['local'] = "Remoto";
           formDataTeoria['possui-instrumento'] = 'N/A';
-          formDataTeoria['experiencia-relate'] = 'Inscrito automaticamente com curso de instrumento';
+          formDataTeoria['experiencia-relate'] = 'Inscrição Automática';
           const newRowTeoria = createSheetRow(headers, map, formDataTeoria);
           sheet.appendRow(newRowTeoria);
 
