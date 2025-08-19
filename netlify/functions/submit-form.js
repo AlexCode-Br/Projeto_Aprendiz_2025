@@ -160,13 +160,15 @@ exports.handler = async (event) => {
             body: JSON.stringify({ result: "success" }),
         };
 
-    } catch (error) {
-        console.error("Erro na Netlify Function:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ result: "error", message: "Ocorreu um erro no servidor: " + error.message }),
-        };
-    }
+    // DENTRO DO submit-form.js
+        } catch (error) {
+            console.error("ERRO DETALHADO NA FUNÇÃO:", JSON.stringify(error, null, 2));
+            console.error("CORPO DO ERRO (RESPONSE BODY):", error.responseBody); // Específico para erros de API
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ result: "error", message: "Ocorreu um erro no servidor: " + (error.responseBody || error.message) }),
+            };
+        }
 };
 
 
