@@ -1,0 +1,17 @@
+{
+  "name": "site---projeto-aprendiz-2025",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendinblue/client": "^3.3.1",
+    "google-auth-library": "^10.2.1",
+    "googleapis": "^156.0.0"
+  }
+}

@@ -1,0 +1,13 @@
+# Dependências do Node.js
+# Esta pasta é gerada automaticamente
+node_modules/
+
+# Arquivos de credenciais e segredos
+# ATENÇÃO: NUNCA envie este arquivo para o GitHub por segurança
+the-slate-469515-d5-48eaeabb8f22.json
+
+# Arquivos de ambiente (boa prática)
+.env
+
+# Arquivos de sistema operacional
+.DS_Store
