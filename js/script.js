@@ -1,8 +1,3 @@
-/**
- * script.js (Projeto Aprendiz 2025)
- * Lógica de interatividade e melhorias por Gemini
- * V4.3 - Solução final com Scroll Hint animado para iOS
- */
 document.addEventListener('DOMContentLoaded', function() {
 
     const courseIcons = {
