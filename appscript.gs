@@ -1,8 +1,6 @@
 // ================================================================= //
-// SCRIPT FINAL v3.3 - PROJETO APRENDIZ (Com Logs para Diagnóstico) //
+// SCRIPT FINAL v3.4 - PROJETO APRENDIZ (Versão Final Corrigida)    //
 // ================================================================= //
-
-// --- Início da Seção de Configuração ---
 
 const NOME_DA_ABA = "Página1";
 const LIMITE_DE_CURSOS = 3;
@@ -30,106 +28,80 @@ const map = {
   'possui-instrumento': 'Possui Instrumento?'
 };
 
-// --- Fim da Seção de Configuração ---
-
 function doPost(e) {
-  Logger.log(">>> Início da execução: doPost acionado.");
-  Logger.log("Dados recebidos do formulário: " + JSON.stringify(e.parameter));
   try {
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000); 
+
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_DA_ABA);
-    if (!sheet) {
-      Logger.log("!!! ERRO CRÍTICO: A aba com o nome '" + NOME_DA_ABA + "' não foi encontrada.");
-      throw new Error("Aba '" + NOME_DA_ABA + "' não foi encontrada.");
-    }
-    Logger.log(">>> Passo 1: Aba da planilha '" + NOME_DA_ABA + "' encontrada com sucesso.");
+    if (!sheet) throw new Error("Aba '" + NOME_DA_ABA + "' não foi encontrada.");
 
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const formData = e.parameter;
-
     const nomeCompleto = formData['nome-completo'];
     const email = formData['email-inscricao'];
     const cursoInstrumento = formData['instrumento'];
     const localInstrumento = formData['local'];
 
-    Logger.log(`>>> Passo 2: Validando inscrição para ${nomeCompleto} no curso de ${cursoInstrumento}.`);
     if (isDuplicateCourse(sheet, headers, nomeCompleto, email, cursoInstrumento)) {
-      Logger.log("!!! Validação falhou: Aluno já inscrito neste curso.");
       return ContentService.createTextOutput(JSON.stringify({ "result": "duplicate_course", "message": "Você já está inscrito(a) neste curso!" })).setMimeType(ContentService.MimeType.JSON);
     }
-
     const courseCount = countUserCourses(sheet, headers, nomeCompleto, email);
     if (courseCount >= LIMITE_DE_CURSOS) {
-      Logger.log("!!! Validação falhou: Limite de cursos atingido.");
       return ContentService.createTextOutput(JSON.stringify({ "result": "limit_reached", "message": `Limite atingido! Só é possível se inscrever em até ${LIMITE_DE_CURSOS} cursos.` })).setMimeType(ContentService.MimeType.JSON);
     }
-    Logger.log(">>> Passo 3: Validação concluída com sucesso.");
-    
+
     const newRowInstrumento = createSheetRow(headers, map, formData);
     sheet.appendRow(newRowInstrumento);
-    Logger.log(">>> Passo 4: Inscrição principal salva na planilha.");
-
     sendConfirmationEmail(email, nomeCompleto, cursoInstrumento, localInstrumento, formData);
-    Logger.log(">>> Passo 5: E-mails de confirmação para o curso principal foram enviados.");
 
     if (cursoInstrumento !== "Teoria Musical") {
-      Logger.log(">>> Iniciando lógica de inscrição automática em Teoria Musical.");
       const cursoTeoria = "Teoria Musical";
       if (!isDuplicateCourse(sheet, headers, nomeCompleto, email, cursoTeoria)) {
         if (countUserCourses(sheet, headers, nomeCompleto, email) < LIMITE_DE_CURSOS) {
-          let formDataTeoria = JSON.parse(JSON.stringify(formData));
+          let formDataTeoria = { ...formData };
           formDataTeoria['instrumento'] = cursoTeoria;
           formDataTeoria['local'] = "Remoto";
           formDataTeoria['possui-instrumento'] = 'N/A';
           formDataTeoria['experiencia-relate'] = 'Inscrito automaticamente com curso de instrumento';
           const newRowTeoria = createSheetRow(headers, map, formDataTeoria);
           sheet.appendRow(newRowTeoria);
-          Logger.log(">>> Passo 6: Inscrição de Teoria Musical salva na planilha.");
-
-          const triggerData = { email: email, nome: nomeCompleto, curso: cursoTeoria, local: "Remoto", formData: formDataTeoria };
-          PropertiesService.getScriptProperties().setProperty(Utilities.getUuid(), JSON.stringify(triggerData));
+          
+          PropertiesService.getScriptProperties().setProperty(Utilities.getUuid(), JSON.stringify({ email, nome: nomeCompleto, curso: cursoTeoria, local: "Remoto", formData: formDataTeoria }));
           ScriptApp.newTrigger('sendDelayedTheoryEmail').timeBased().after(60 * 1000).create();
-          Logger.log(">>> Passo 7: Gatilho para e-mail de Teoria Musical criado.");
         }
       }
     }
-
-    Logger.log(">>> Fim da execução: Sucesso.");
+    
+    lock.releaseLock();
     return ContentService.createTextOutput(JSON.stringify({ "result": "success" })).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    Logger.log("!!! ERRO CRÍTICO na função doPost: " + error.toString() + " | Stack: " + error.stack);
+    Logger.log("ERRO CRÍTICO na função doPost: " + error.toString() + " | Stack: " + error.stack);
     return ContentService.createTextOutput(JSON.stringify({ "result": "error", "message": "Ocorreu um erro no servidor: " + error.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-// ================================================================= //
-//                           FUNÇÕES AUXILIARES                      //
-// ================================================================= //
-
 function sendDelayedTheoryEmail() {
-  const properties = PropertiesService.getScriptProperties();
-  const keys = properties.getKeys();
-
-  if (keys.length > 0) {
-    const key = keys[0];
-    const triggerData = JSON.parse(properties.getProperty(key));
-    sendConfirmationEmail(triggerData.email, triggerData.nome, triggerData.curso, triggerData.local, triggerData.formData);
-    properties.deleteProperty(key);
-    const allTriggers = ScriptApp.getProjectTriggers();
-    for (const trigger of allTriggers) {
-      if (trigger.getHandlerFunction() === 'sendDelayedTheoryEmail') {
-        ScriptApp.deleteTrigger(trigger);
-        break;
-      }
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    const properties = PropertiesService.getScriptProperties();
+    const keys = properties.getKeys();
+    if (keys.length > 0) {
+        const key = keys[0];
+        const triggerData = JSON.parse(properties.getProperty(key));
+        sendConfirmationEmail(triggerData.email, triggerData.nome, triggerData.curso, triggerData.local, triggerData.formData);
+        properties.deleteProperty(key);
+        ScriptApp.getProjectTriggers().forEach(trigger => {
+            if (trigger.getHandlerFunction() === 'sendDelayedTheoryEmail') {
+                ScriptApp.deleteTrigger(trigger);
+            }
+        });
     }
-  }
+    lock.releaseLock();
 }
 
 function sendConfirmationEmail(email, nomeCompleto, curso, local, formData) {
-  if (!email || !curso || !local || !courseData[curso] || !courseData[curso][local]) {
-    Logger.log(`Dados insuficientes para enviar e-mail para ${email} no curso ${curso}`);
-    return;
-  }
-
+  if (!email || !curso || !local || !courseData[curso] || !courseData[curso][local]) return;
   const { link: whatsappLink, teacher_email } = courseData[curso][local];
   let signatureBlob = null;
   let inlineImages = {};
@@ -139,39 +111,27 @@ function sendConfirmationEmail(email, nomeCompleto, curso, local, formData) {
   } catch (err) {
     Logger.log("Erro ao buscar imagem da assinatura: " + err.toString());
   }
-
   const subjectAluno = `Confirmação de Inscrição: Curso de ${curso}`;
   const emailBodyAluno = `
     <div style="max-width: 600px; margin: 20px auto; font-family: Arial, sans-serif; color: #333333; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-      <div style="background-color: #b71c1c; color: white; padding: 20px; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">Inscrição Confirmada!</h2>
-      </div>
+      <div style="background-color: #b71c1c; color: white; padding: 20px; text-align: center;"><h2 style="margin: 0; font-size: 24px;">Inscrição Confirmada!</h2></div>
       <div style="padding: 25px; line-height: 1.7; font-size: 16px;">
         <p>A paz do Senhor Jesus, irmão(a) <strong>${nomeCompleto.split(' ')[0]}</strong>!</p>
         <p>Sua inscrição no <strong>Curso de ${curso} ${local ? `(Local: ${local})` : ''}</strong> foi concluída com sucesso.</p>
         <p>Para receber orientações, avisos e materiais de apoio, é muito importante que você participe do grupo oficial no WhatsApp.</p>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${whatsappLink}" target="_blank" style="background-color: #8c1212; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-            👉 Entrar no Grupo do WhatsApp
-          </a>
-        </p>
-        <p>Deus abençoe sua dedicação e empenho no aprendizado!</p>
-        <p>Fraternal abraço,</p>
+        <p style="text-align: center; margin: 30px 0;"><a href="${whatsappLink}" target="_blank" style="background-color: #8c1212; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">👉 Entrar no Grupo do WhatsApp</a></p>
+        <p>Deus abençoe sua dedicação e empenho no aprendizado!</p><p>Fraternal abraço,</p>
       </div>
-      ${signatureBlob ? `<div style="background-image: url('cid:signatureImage'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 150px; width: 100%;"></div>` : `<div style="background-color: #f8f9fa; padding: 20px; text-align: center;"><p><strong>Projeto Aprendiz</strong><br>Departamento de Inscrição</p></div>`}
-    </div>
-  `;
+      ${signatureBlob ? `<div style="background-image: url('cid:signatureImage'); background-size: cover; background-position: center; height: 150px; width: 100%;"></div>` : `<div style="background-color: #f8f9fa; padding: 20px; text-align: center;"><p><strong>Projeto Aprendiz</strong><br>Departamento de Inscrição</p></div>`}
+    </div>`;
   GmailApp.sendEmail(email, subjectAluno, '', { htmlBody: emailBodyAluno, name: 'Projeto Aprendiz', inlineImages: inlineImages });
 
   const notificationSubject = `Nova Inscrição: ${curso} (${local}) - ${nomeCompleto}`;
   const notificationBody = `
     <div style="max-width: 600px; margin: 20px auto; font-family: Arial, sans-serif; color: #333333; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-      <div style="background-color: #4a5568; color: white; padding: 20px; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">Notificação de Nova Inscrição</h2>
-      </div>
+      <div style="background-color: #4a5568; color: white; padding: 20px; text-align: center;"><h2 style="margin: 0; font-size: 24px;">Notificação de Nova Inscrição</h2></div>
       <div style="padding: 25px; line-height: 1.7; font-size: 16px;">
-        <p>A paz do Senhor,</p>
-        <p>Uma nova inscrição foi realizada para o <strong>Curso de ${curso}</strong> no local <strong>${local}</strong>. Seguem os dados do(a) aluno(a):</p>
+        <p>A paz do Senhor,</p><p>Uma nova inscrição foi realizada para o <strong>Curso de ${curso}</strong> no local <strong>${local}</strong>. Seguem os dados do(a) aluno(a):</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-size: 15px;">
           <tbody>
             <tr style="border-bottom: 1px solid #eeeeee;"><td style="padding: 10px; font-weight: bold; color: #555;">Nome:</td><td style="padding: 10px;">${nomeCompleto}</td></tr>
@@ -184,9 +144,8 @@ function sendConfirmationEmail(email, nomeCompleto, curso, local, formData) {
         </table>
         <p>A inscrição já foi adicionada à planilha correspondente.</p>
       </div>
-      ${signatureBlob ? `<div style="background-image: url('cid:signatureImage'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 150px; width: 100%;"></div>` : `<div style="background-color: #f8f9fa; padding: 20px; text-align: center;"><p><strong>Projeto Aprendiz</strong><br>Departamento de Inscrição</p></div>`}
-    </div>
-  `;
+      ${signatureBlob ? `<div style="background-image: url('cid:signatureImage'); background-size: cover; background-position: center; height: 150px; width: 100%;"></div>` : `<div style="background-color: #f8f9fa; padding: 20px; text-align: center;"><p><strong>Projeto Aprendiz</strong><br>Departamento de Inscrição</p></div>`}
+    </div>`;
   const recipientEmails = [adminEmail, teacher_email].filter((el, i, self) => el && self.indexOf(el) === i).join(',');
   if (recipientEmails) {
     GmailApp.sendEmail(recipientEmails, notificationSubject, '', { htmlBody: notificationBody, name: 'Projeto Aprendiz', inlineImages: inlineImages });
