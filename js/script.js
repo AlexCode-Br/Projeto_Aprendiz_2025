@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             "Violão I": {
                 "Alto de Coutos": "sukasantana0@gmail.com",
                 "Boca do Rio": "alana.cruzsilva1@gmail.com",
-                "Brotas": "tonylucas10@gmail.com",
+                "Brotas": "flaviofranzin1976@gmail.com",
                 "Guarani": "geoicm@gmail.com",
                 "Lauro de Freitas": "bralsantos18@gmail.com",
                 "Mirantes de Periperi": "cleyton.icm1225@gmail.com",
