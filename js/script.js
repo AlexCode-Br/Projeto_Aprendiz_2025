@@ -132,13 +132,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const grid = document.getElementById(gridId);
         const nextBtn = document.getElementById(nextBtnId);
         const prevBtn = document.getElementById(prevBtnId);
-        const dotsContainer = document.getElementById('testimonial-dots');
-
+        
         if (!viewport || !grid || !nextBtn || !prevBtn) return;
 
         let currentIndex = 0;
-        let autoPlayInterval;
-
+        
         let isDragging = false,
             isIntentionalDrag = false,
             startPos = { x: 0, y: 0 },
@@ -164,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
             draggedElement = e.target;
             animationID = requestAnimationFrame(animation);
             grid.style.transition = 'none';
-            stopAutoPlay();
         }
 
         function dragMove(e) {
@@ -206,8 +203,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
             if (isIntentionalDrag) {
                 const movedBy = currentTranslate - prevTranslate;
-                if (movedBy < -100) goNext(containerId === 'testimonial-slider-container');
-                else if (movedBy > 100) goPrev(containerId === 'testimonial-slider-container');
+                if (movedBy < -100) goNext();
+                else if (movedBy > 100) goPrev();
                 else updateSlider(); 
             } else if (isDragging && dragEndTime - dragStartTime < CLICK_THRESHOLD_MS) {
                 if (cardClickCallback) {
@@ -219,39 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
             viewport.classList.remove('is-dragging');
             isDragging = false;
             isIntentionalDrag = false;
-            startAutoPlay();
         }
-
-        const goToSlide = (index) => {
-            currentIndex = index;
-            updateSlider();
-        };
-
-        const createDots = () => {
-            if (!dotsContainer) return;
-            dotsContainer.innerHTML = '';
-            const cards = Array.from(grid.children);
-            cards.forEach((_, i) => {
-                const dot = document.createElement('button');
-                dot.classList.add('slider-dot');
-                dot.addEventListener('click', () => {
-                    stopAutoPlay();
-                    goToSlide(i);
-                    startAutoPlay();
-                });
-                dotsContainer.appendChild(dot);
-            });
-        };
         
-        const updateDots = () => {
-            if (!dotsContainer) return;
-            const dots = Array.from(dotsContainer.children);
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentIndex);
-            });
-        };
-        
-        const goNext = (loop = false) => {
+        const goNext = () => {
             const cards = Array.from(grid.children);
             if (cards.length === 0) return;
             const cardWidth = cards[0].offsetWidth;
@@ -262,35 +229,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             currentIndex++;
             if (currentIndex > maxIndex) {
-                currentIndex = loop ? 0 : maxIndex;
+                currentIndex = maxIndex;
             }
             updateSlider();
         };
         
-        const goPrev = (loop = false) => {
-            const cards = Array.from(grid.children);
-            if (cards.length === 0) return;
-            const cardWidth = cards[0].offsetWidth;
-            const gap = parseInt(window.getComputedStyle(grid).gap) || 0;
-            const stepWidth = cardWidth + gap;
-            const itemsInView = Math.floor(viewport.offsetWidth / stepWidth);
-            const maxIndex = cards.length - itemsInView;
-            
+        const goPrev = () => {
             currentIndex--;
             if (currentIndex < 0) {
-                currentIndex = loop ? maxIndex : 0;
+                currentIndex = 0;
             }
             updateSlider();
         };
-
-        const startAutoPlay = () => {
-            if (containerId === 'testimonial-slider-container') {
-                stopAutoPlay();
-                autoPlayInterval = setInterval(() => goNext(true), 5000);
-            }
-        };
-
-        const stopAutoPlay = () => { clearInterval(autoPlayInterval); };
 
         function updateSlider() {
             const totalContentWidth = grid.scrollWidth;
@@ -326,22 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
             prevTranslate = offset;
             currentTranslate = offset;
             
-            if (dotsContainer) {
-                updateDots();
-            }
-
-            if (containerId !== 'testimonial-slider-container') {
-                prevBtn.disabled = currentIndex === 0;
-                const itemsInView = Math.max(1, Math.floor(viewportWidth / stepWidth));
-                nextBtn.disabled = currentIndex >= cards.length - itemsInView;
-            } else {
-                prevBtn.disabled = false;
-                nextBtn.disabled = false;
-            }
-        }
-        
-        if (dotsContainer) {
-            createDots();
+            prevBtn.disabled = currentIndex === 0;
+            const itemsInView = Math.max(1, Math.floor(viewportWidth / stepWidth));
+            nextBtn.disabled = currentIndex >= cards.length - itemsInView;
         }
         
         viewport.addEventListener('dragstart', (e) => e.preventDefault());
@@ -352,10 +289,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('mouseup', dragEnd);
         document.addEventListener('touchend', dragEnd);
 
-        nextBtn.addEventListener('click', () => { stopAutoPlay(); goNext(containerId === 'testimonial-slider-container'); startAutoPlay(); });
-        prevBtn.addEventListener('click', () => { stopAutoPlay(); goPrev(containerId === 'testimonial-slider-container'); startAutoPlay(); });
-        container.addEventListener('mouseenter', stopAutoPlay);
-        container.addEventListener('mouseleave', startAutoPlay);
+        nextBtn.addEventListener('click', goNext);
+        prevBtn.addEventListener('click', goPrev);
 
         const debouncedUpdate = debounce(updateSlider, 100);
         
@@ -363,12 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) { 
-                setTimeout(() => { 
-                    updateSlider(); 
-                    startAutoPlay(); 
-                }, 100); 
-            } else { 
-                stopAutoPlay(); 
+                setTimeout(updateSlider, 100); 
             }
         }, { threshold: 0.1 });
 
@@ -791,32 +721,23 @@ document.addEventListener('DOMContentLoaded', function() {
         function updateFormVisibility(selectedInstrumento) {
             const possuiInstrumentoGroup = document.getElementById('possui-instrumento-group');
             const localGroup = document.getElementById('local-curso-inscricao-group');
-            const localSelect = document.getElementById('custom-local-inscricao-select');
+            
+            if (selectedInstrumento === 'Teoria Musical') {
+                if (possuiInstrumentoGroup) possuiInstrumentoGroup.style.display = 'none';
+                if (localGroup) localGroup.style.display = 'none';
+            } else {
+                 // Logic for other instruments (currently not available for new signups)
+                const needsInstrument = selectedInstrumento !== 'Canto Coral';
+                if (possuiInstrumentoGroup) {
+                    possuiInstrumentoGroup.style.display = needsInstrument ? 'block' : 'none';
+                }
 
-            if (possuiInstrumentoGroup) possuiInstrumentoGroup.style.display = 'none';
-            if (localGroup) localGroup.style.display = 'none';
-            if (localSelect) {
-                localSelect.removeAttribute('data-selected-value');
-                const triggerText = localSelect.querySelector('.custom-select-trigger span');
-                if (triggerText) triggerText.textContent = 'Selecione o local';
-            }
-
-            if (!selectedInstrumento) return;
-
-            const needsInstrument = selectedInstrumento !== 'Teoria Musical' && selectedInstrumento !== 'Canto Coral';
-            if (possuiInstrumentoGroup) {
-                possuiInstrumentoGroup.style.display = needsInstrument ? 'block' : 'none';
-            }
-
-            const curso = siteData.courses.find(c => c.name === selectedInstrumento);
-            if (!curso || !curso.locations) return;
-
-            const availableLocations = curso.locations;
-
-            if (availableLocations.length > 0) {
-                const locationNames = availableLocations.map(loc => loc.local);
-                populateSelect('custom-local-inscricao-select', locationNames);
-                if (localGroup) localGroup.style.display = 'block';
+                const curso = siteData.courses.find(c => c.name === selectedInstrumento);
+                if (curso && curso.locations && curso.locations.length > 0) {
+                     if (localGroup) localGroup.style.display = 'block';
+                } else {
+                    if (localGroup) localGroup.style.display = 'none';
+                }
             }
         }
 
@@ -875,15 +796,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
         populateSelect('custom-igreja-select', bairros, true);
         populateSelect('custom-classe-select', ["Intermediário", "Adolescente", "Jovem", "Senhora", "Varão"], true);
-        populateSelect('custom-instrumento-select', siteData.courses.map(c => c.name), true);
+        
+        // Only populate Teoria Musical for new sign-ups
+        populateSelect('custom-instrumento-select', ["Teoria Musical"]);
+        
         populateSelect('custom-possui-instrumento-select', ["Sim, é meu próprio", "Não possuo", "Sim, mas é emprestado"]);
 
         setupCustomSelect('custom-igreja-select', () => validateField(fields.igreja));
         setupCustomSelect('custom-classe-select', () => validateField(fields.classe));
-        setupCustomSelect('custom-instrumento-select', (selectedInstrument) => {
-            updateFormVisibility(selectedInstrument);
-            validateField(fields.instrumento);
-        });
+        
+        const instrumentoWrapper = document.getElementById('custom-instrumento-select');
+        const instrumentoTrigger = instrumentoWrapper.querySelector('.custom-select-trigger');
+        const instrumentoTriggerText = instrumentoTrigger.querySelector('span');
+
+        instrumentoTriggerText.textContent = 'Teoria Musical';
+        instrumentoWrapper.setAttribute('data-selected-value', 'Teoria Musical');
+        instrumentoWrapper.classList.add('is-disabled');
+        instrumentoTrigger.style.pointerEvents = 'none';
+
         setupCustomSelect('custom-possui-instrumento-select', () => validateField(fields.possuiInstrumento));
         setupCustomSelect('custom-local-inscricao-select', () => validateField(fields.local));
 
@@ -893,7 +823,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        updateFormVisibility(null);
+        updateFormVisibility('Teoria Musical');
 
         form.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -914,8 +844,8 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.set('igreja', fields.igreja.wrapper.getAttribute('data-selected-value') || "");
             formData.set('classe', fields.classe.wrapper.getAttribute('data-selected-value') || "");
             formData.set('instrumento', fields.instrumento.wrapper.getAttribute('data-selected-value') || "");
-            formData.set('local', fields.local.wrapper.getAttribute('data-selected-value') || "N/A");
-            formData.set('possui-instrumento', fields.possuiInstrumento.wrapper.getAttribute('data-selected-value') || "N/A");
+            formData.set('local', "Remoto"); // Hardcoded for Teoria Musical
+            formData.set('possui-instrumento', "N/A"); // Hardcoded for Teoria Musical
 
             fetch(scriptURL, { method: 'POST', body: formData})
                 .then(response => response.json())
@@ -933,15 +863,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 const placeholderMap = {
                                     'custom-igreja-select': 'Selecione a igreja',
                                     'custom-classe-select': 'Selecione sua classe',
-                                    'custom-instrumento-select': 'Selecione o instrumento',
-                                    'custom-local-inscricao-select': 'Selecione o local',
                                     'custom-possui-instrumento-select': 'Selecione uma opção'
                                 };
-                                triggerText.textContent = placeholderMap[wrapper.id] || 'Selecione';
-                                wrapper.removeAttribute('data-selected-value');
+                                if (wrapper.id !== 'custom-instrumento-select') {
+                                    triggerText.textContent = placeholderMap[wrapper.id] || 'Selecione';
+                                    wrapper.removeAttribute('data-selected-value');
+                                }
                             });
                             document.getElementById('experiencia-group').style.display = 'none';
-                            updateFormVisibility(null);
+                            updateFormVisibility('Teoria Musical');
                         }, 4000);
                     } else if (data.result === 'duplicate_course' || data.result === 'limit_reached') {
                         iconContainer.innerHTML = duplicateIconSVG;
@@ -953,22 +883,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         throw new Error(data.message || 'Ocorreu um erro desconhecido.');
                     }
                 })
-                                .catch(error => {
+                .catch(error => {
                     console.error('Error!', error);
                     loaderOverlay.classList.remove('loading');
-                    loaderOverlay.classList.add('duplicate'); // Reutiliza o estilo de erro
+                    loaderOverlay.classList.add('duplicate'); 
 
                     const iconContainer = loaderOverlay.querySelector('#feedback-icon-container');
                     const textContainer = loaderOverlay.querySelector('#feedback-text-container');
                     
-                    // Adiciona o ícone de erro e a mensagem
-                    if (iconContainer) iconContainer.innerHTML = duplicateIconSVG; // Reutiliza o ícone de 'duplicado' para erro
+                    if (iconContainer) iconContainer.innerHTML = duplicateIconSVG; 
                     if (textContainer) textContainer.textContent = 'Ocorreu um erro. Tente novamente.';
 
-                    // Mantém a mensagem de erro visível por alguns segundos
                     setTimeout(() => {
                         loaderOverlay.classList.remove('show', 'duplicate');
-                    }, 5000); // Aumenta o tempo para 5 segundos
+                    }, 5000);
                 });
         });
     }
@@ -996,7 +924,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupContactForm();
     setupRegistrationForm();
     setupScrollAnimations();
-    setupSlider('testimonial-slider-container', 'testimonial-slides', 'depoimento-prev', 'depoimento-next');
 
     window.addEventListener('click', () => {
         document.querySelectorAll('.custom-select-wrapper.is-open').forEach(select => {
