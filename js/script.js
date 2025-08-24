@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const pdfModal = document.getElementById('pdf-modal');
     const pdfModalControls = setupModal(pdfModal);
 
-    function setupSlider(containerId, gridId, prevBtnId, nextBtnId, cardClickCallback) {
+    function setupSlider(containerId, gridId, prevBtnId, nextBtnId) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
@@ -142,12 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
             startPos = { x: 0, y: 0 },
             currentTranslate = 0,
             prevTranslate = 0,
-            animationID,
-            dragStartTime,
-            draggedElement;
+            animationID;
             
         const DRAG_THRESHOLD = 10;
-        const CLICK_THRESHOLD_MS = 300;
 
         const getPosition = (e) => ({
             x: e.touches ? e.touches[0].clientX : e.clientX,
@@ -156,10 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function dragStart(e) {
             startPos = getPosition(e);
-            dragStartTime = Date.now();
             isDragging = true;
             isIntentionalDrag = false;
-            draggedElement = e.target;
             animationID = requestAnimationFrame(animation);
             grid.style.transition = 'none';
         }
@@ -197,8 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function dragEnd() {
             cancelAnimationFrame(animationID);
-            const dragEndTime = Date.now();
-            
             grid.style.transition = ''; 
         
             if (isIntentionalDrag) {
@@ -206,11 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (movedBy < -100) goNext();
                 else if (movedBy > 100) goPrev();
                 else updateSlider(); 
-            } else if (isDragging && dragEndTime - dragStartTime < CLICK_THRESHOLD_MS) {
-                if (cardClickCallback) {
-                    const card = draggedElement.closest('.download-card');
-                    if (card) cardClickCallback(card);
-                }
             }
         
             viewport.classList.remove('is-dragging');
@@ -437,6 +425,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const downloadGrid = document.getElementById('download-grid');
         if (!downloadGrid) return;
     
+        const handleCardClick = (card) => {
+            if (!card) return;
+            const pdfFile = card.dataset.pdfFile;
+            const pdfName = card.dataset.pdfName;
+    
+            if (window.innerWidth <= 768) {
+                const link = document.createElement('a');
+                link.href = encodeURI(pdfFile);
+                link.download = pdfName.replace(/ /g, '_') + '.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else if (pdfModal) {
+                pdfModal.querySelector('#pdf-modal-title').textContent = pdfName;
+                pdfModal.querySelector('#pdf-iframe').src = encodeURI(pdfFile);
+                pdfModalControls.open();
+            }
+        };
+    
         siteData.downloads.forEach(download => {
             const card = document.createElement('div');
             card.className = 'download-card';
@@ -451,29 +458,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <h4>${download.name}</h4>
             `;
+            
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleCardClick(card);
+            });
+    
             downloadGrid.appendChild(card);
         });
     
-        const handleCardClick = (card) => {
-            if (!card) return;
-            const pdfFile = card.dataset.pdfFile;
-            const pdfName = card.dataset.pdfName;
-
-            if (window.innerWidth <= 768) {
-                const link = document.createElement('a');
-                link.href = encodeURI(pdfFile);
-                link.download = pdfName.replace(/ /g, '_') + '.pdf';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else if (pdfModal) {
-                pdfModal.querySelector('#pdf-modal-title').textContent = pdfName;
-                pdfModal.querySelector('#pdf-iframe').src = encodeURI(pdfFile);
-                pdfModalControls.open();
-            }
-        };
-
-        setupSlider('download-slider-container', 'download-grid', 'download-prev', 'download-next', handleCardClick);
+        setupSlider('download-slider-container', 'download-grid', 'download-prev', 'download-next');
     }
     
     function populateSelect(selectId, data, searchable = false) {
@@ -513,6 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         trigger.addEventListener('click', (e) => {
             e.stopPropagation();
+             if (customSelect.classList.contains('is-disabled')) return;
             document.querySelectorAll('.custom-select-wrapper.is-open').forEach(openSelect => {
                 if (openSelect !== customSelect) openSelect.classList.remove('is-open');
             });
@@ -726,7 +721,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (possuiInstrumentoGroup) possuiInstrumentoGroup.style.display = 'none';
                 if (localGroup) localGroup.style.display = 'none';
             } else {
-                 // Logic for other instruments (currently not available for new signups)
                 const needsInstrument = selectedInstrumento !== 'Canto Coral';
                 if (possuiInstrumentoGroup) {
                     possuiInstrumentoGroup.style.display = needsInstrument ? 'block' : 'none';
@@ -797,7 +791,6 @@ document.addEventListener('DOMContentLoaded', function() {
         populateSelect('custom-igreja-select', bairros, true);
         populateSelect('custom-classe-select', ["Intermediário", "Adolescente", "Jovem", "Senhora", "Varão"], true);
         
-        // Only populate Teoria Musical for new sign-ups
         populateSelect('custom-instrumento-select', ["Teoria Musical"]);
         
         populateSelect('custom-possui-instrumento-select', ["Sim, é meu próprio", "Não possuo", "Sim, mas é emprestado"]);
@@ -837,15 +830,15 @@ document.addEventListener('DOMContentLoaded', function() {
             iconContainer.innerHTML = ''; textContainer.textContent = '';
             loaderOverlay.classList.add('show', 'loading');
 
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbw8NqGN2UI_2PXfdeoJmXLmO-ayiAJKDkvBxmJhVA_faxu8HWI3S-UqgVMJjvfwK0FyGA/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbw5-sjrVIw2cfPOMc6bcuk8UC78q-OrPNjoXqiAXaBx0195i_pxFe2DZbNs3_HuOlvR/exec';
 
             const formData = new FormData(form);
 
             formData.set('igreja', fields.igreja.wrapper.getAttribute('data-selected-value') || "");
             formData.set('classe', fields.classe.wrapper.getAttribute('data-selected-value') || "");
             formData.set('instrumento', fields.instrumento.wrapper.getAttribute('data-selected-value') || "");
-            formData.set('local', "Remoto"); // Hardcoded for Teoria Musical
-            formData.set('possui-instrumento', "N/A"); // Hardcoded for Teoria Musical
+            formData.set('local', "Remoto");
+            formData.set('possui-instrumento', "N/A");
 
             fetch(scriptURL, { method: 'POST', body: formData})
                 .then(response => response.json())
