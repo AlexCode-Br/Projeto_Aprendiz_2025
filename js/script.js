@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const pdfModal = document.getElementById('pdf-modal');
     const pdfModalControls = setupModal(pdfModal);
 
-    function setupSlider(containerId, gridId, prevBtnId, nextBtnId, cardClickCallback) {
+    function setupSlider(containerId, gridId, prevBtnId, nextBtnId) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
@@ -142,12 +142,9 @@ document.addEventListener('DOMContentLoaded', function() {
             startPos = { x: 0, y: 0 },
             currentTranslate = 0,
             prevTranslate = 0,
-            animationID,
-            dragStartTime,
-            draggedElement;
+            animationID;
             
         const DRAG_THRESHOLD = 10;
-        const CLICK_THRESHOLD_MS = 300;
 
         const getPosition = (e) => ({
             x: e.touches ? e.touches[0].clientX : e.clientX,
@@ -156,10 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function dragStart(e) {
             startPos = getPosition(e);
-            dragStartTime = Date.now();
             isDragging = true;
             isIntentionalDrag = false;
-            draggedElement = e.target;
             animationID = requestAnimationFrame(animation);
             grid.style.transition = 'none';
         }
@@ -173,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isIntentionalDrag) {
                 if (Math.abs(moveX) > DRAG_THRESHOLD && Math.abs(moveX) > Math.abs(moveY)) {
                     isIntentionalDrag = true; 
+                    viewport.dataset.isDragging = 'true';
                     viewport.classList.add('is-dragging');
                 } else if (Math.abs(moveY) > DRAG_THRESHOLD && Math.abs(moveY) > Math.abs(moveX)) {
                     isDragging = false; 
@@ -197,8 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function dragEnd() {
             cancelAnimationFrame(animationID);
-            const dragEndTime = Date.now();
-            
             grid.style.transition = ''; 
         
             if (isIntentionalDrag) {
@@ -206,18 +200,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (movedBy < -100) goNext();
                 else if (movedBy > 100) goPrev();
                 else updateSlider(); 
-            } else if (isDragging && (dragEndTime - dragStartTime < CLICK_THRESHOLD_MS)) {
-                if (cardClickCallback) {
-                    const card = draggedElement.closest('.download-card');
-                    if (card) {
-                        cardClickCallback(card);
-                    }
-                }
             }
         
             viewport.classList.remove('is-dragging');
             isDragging = false;
             isIntentionalDrag = false;
+            setTimeout(() => { viewport.dataset.isDragging = 'false'; }, 0);
         }
         
         const goNext = () => {
@@ -443,20 +431,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!card) return;
             const pdfFile = card.dataset.pdfFile;
             const pdfName = card.dataset.pdfName;
-            
-            const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
-            if (isMobile) {
+            // Prioritize opening the modal viewer on all devices
+            if (pdfModal) {
+                pdfModal.querySelector('#pdf-modal-title').textContent = pdfName;
+                pdfModal.querySelector('#pdf-iframe').src = encodeURI(pdfFile);
+                pdfModalControls.open();
+            } else {
+                // Fallback to direct download if modal doesn't exist
                 const link = document.createElement('a');
                 link.href = encodeURI(pdfFile);
                 link.download = pdfName.replace(/ /g, '_') + '.pdf';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            } else if (pdfModal) {
-                pdfModal.querySelector('#pdf-modal-title').textContent = pdfName;
-                pdfModal.querySelector('#pdf-iframe').src = encodeURI(pdfFile);
-                pdfModalControls.open();
             }
         };
     
@@ -474,10 +462,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <h4>${download.name}</h4>
             `;
+
+            card.addEventListener('click', (e) => {
+                const viewport = card.closest('.slider-container').querySelector('.slider-viewport');
+                if (viewport && viewport.dataset.isDragging === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                handleCardClick(card);
+            });
+
             downloadGrid.appendChild(card);
         });
     
-        setupSlider('download-slider-container', 'download-grid', 'download-prev', 'download-next', handleCardClick);
+        setupSlider('download-slider-container', 'download-grid', 'download-prev', 'download-next');
     }
     
     function populateSelect(selectId, data, searchable = false) {
