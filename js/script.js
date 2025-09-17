@@ -796,3 +796,429 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function setupImageLightbox() {
+        const lightbox = document.getElementById('image-lightbox');
+        if (!lightbox) return;
+
+        const image = lightbox.querySelector('#lightbox-image');
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const zoomInBtn = lightbox.querySelector('#zoom-in');
+        const zoomOutBtn = lightbox.querySelector('#zoom-out');
+        const imageWrapper = lightbox.querySelector('.lightbox-image-wrapper');
+        const triggers = document.querySelectorAll('.lightbox-trigger');
+
+        let scale = 1;
+        let isDragging = false;
+        let startPos = { x: 0, y: 0 };
+        let lastPos = { x: 0, y: 0 };
+        
+        const open = (e) => {
+            e.preventDefault();
+            const imgSrc = e.currentTarget.href;
+            image.src = imgSrc;
+            lightbox.classList.add('is-visible');
+            document.body.classList.add('modal-open');
+        };
+
+        const close = () => {
+            lightbox.classList.remove('is-visible');
+            document.body.classList.remove('modal-open');
+            resetZoomAndPosition();
+        };
+
+        const updateZoom = () => {
+            image.style.transform = `scale(${scale})`;
+        };
+        
+        const resetZoomAndPosition = () => {
+            scale = 1;
+            updateZoom();
+            imageWrapper.scrollTop = 0;
+            imageWrapper.scrollLeft = 0;
+        };
+
+        const zoomIn = () => {
+            scale *= 1.2;
+            updateZoom();
+        };
+        const zoomOut = () => {
+            scale /= 1.2;
+            if (scale < 1) scale = 1;
+            updateZoom();
+        };
+        
+        const startDrag = (e) => {
+            e.preventDefault();
+            isDragging = true;
+            imageWrapper.classList.add('is-grabbing');
+            startPos = { x: e.clientX, y: e.clientY };
+            lastPos = { x: imageWrapper.scrollLeft, y: imageWrapper.scrollTop };
+        };
+
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const dx = e.clientX - startPos.x;
+                const dy = e.clientY - startPos.y;
+                imageWrapper.scrollLeft = lastPos.x - dx;
+                imageWrapper.scrollTop = lastPos.y - dy;
+            }
+        };
+
+        const endDrag = () => {
+            isDragging = false;
+            imageWrapper.classList.remove('is-grabbing');
+        };
+
+        triggers.forEach(trigger => trigger.addEventListener('click', open));
+        closeBtn.addEventListener('click', close);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) close();
+        });
+        zoomInBtn.addEventListener('click', zoomIn);
+        zoomOutBtn.addEventListener('click', zoomOut);
+        
+        imageWrapper.addEventListener('mousedown', startDrag);
+        imageWrapper.addEventListener('mousemove', drag);
+        imageWrapper.addEventListener('mouseup', endDrag);
+        imageWrapper.addEventListener('mouseleave', endDrag);
+    }
+    
+    // Adicionar esta chamada de função dentro do bloco de inicialização
+    if (document.querySelector('.article-section')) {
+        setupImageLightbox();
+    }
+function setupImageLightbox() {
+        const lightbox = document.getElementById('image-lightbox');
+        if (!lightbox) return;
+
+        const image = lightbox.querySelector('#lightbox-image');
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const zoomInBtn = lightbox.querySelector('#zoom-in');
+        const zoomOutBtn = lightbox.querySelector('#zoom-out');
+        const imageWrapper = lightbox.querySelector('.lightbox-image-wrapper');
+        const triggers = document.querySelectorAll('.lightbox-trigger');
+
+        let scale = 1;
+        let isDragging = false;
+        let startPos = { x: 0, y: 0 };
+        let lastPos = { x: 0, y: 0 };
+        
+        const open = (e) => {
+            e.preventDefault();
+            const imgSrc = e.currentTarget.href;
+            image.src = imgSrc;
+            lightbox.classList.add('is-visible');
+            document.body.classList.add('modal-open');
+        };
+
+        const close = () => {
+            lightbox.classList.remove('is-visible');
+            document.body.classList.remove('modal-open');
+            resetZoomAndPosition();
+        };
+
+        const updateZoom = () => {
+            image.style.transform = `scale(${scale})`;
+        };
+        
+        const resetZoomAndPosition = () => {
+            scale = 1;
+            updateZoom();
+            imageWrapper.scrollTop = 0;
+            imageWrapper.scrollLeft = 0;
+        };
+
+        const zoomIn = () => {
+            scale *= 1.2;
+            updateZoom();
+        };
+        const zoomOut = () => {
+            scale /= 1.2;
+            if (scale < 0.5) scale = 0.5;
+            updateZoom();
+        };
+        
+        const startDrag = (e) => {
+            e.preventDefault();
+            isDragging = true;
+            imageWrapper.classList.add('is-grabbing');
+            startPos = { x: e.clientX, y: e.clientY };
+            lastPos = { x: imageWrapper.scrollLeft, y: imageWrapper.scrollTop };
+        };
+
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const dx = e.clientX - startPos.x;
+                const dy = e.clientY - startPos.y;
+                imageWrapper.scrollLeft = lastPos.x - dx;
+                imageWrapper.scrollTop = lastPos.y - dy;
+            }
+        };
+
+        const endDrag = () => {
+            isDragging = false;
+            imageWrapper.classList.remove('is-grabbing');
+        };
+
+        triggers.forEach(trigger => trigger.addEventListener('click', open));
+        closeBtn.addEventListener('click', close);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) close();
+        });
+        zoomInBtn.addEventListener('click', zoomIn);
+        zoomOutBtn.addEventListener('click', zoomOut);
+        
+        imageWrapper.addEventListener('mousedown', startDrag);
+        imageWrapper.addEventListener('mousemove', drag);
+        imageWrapper.addEventListener('mouseup', endDrag);
+        imageWrapper.addEventListener('mouseleave', endDrag);
+    }
+
+    function setupSharing() {
+        const shareButton = document.getElementById('share-button');
+        const popover = document.getElementById('share-popover');
+        if (!shareButton || !popover) return;
+        
+        const shareLinks = popover.querySelectorAll('.share-link');
+        const copyBtn = document.getElementById('copy-link-button');
+
+        const shareIcons = {
+            whatsapp: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.3-8.8-98.1-25.4l-7-4.1-72.5 19.1 19.4-70.6-4.5-7.4c-18.5-30.7-29.9-67.4-29.9-106.1 0-107.7 87.5-195.1 195.1-195.1 53 0 101.3 20.5 137.9 57.2 36.8 36.8 57.1 86.8 57.1 139.9-.1 107.9-87.5 195.2-195.2 195.2zm101.3-138.3c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>`,
+            facebook: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>`,
+            twitter: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>`,
+            copy: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v-40c0-13.255 10.745-24 24-24h200c13.255 0 24 10.745 24 24v424c0 13.255-10.745 24-24 24H320zM264 32H120c-13.255 0-24 10.745-24 24v328c0 13.255 10.745 24 24 24h200c13.255 0-24-10.745-24-24V56c0-13.255-10.745-24-24-24z"/></svg>`
+        };
+        shareLinks.forEach(link => {
+            const network = link.dataset.network;
+            link.innerHTML = shareIcons[network];
+        });
+
+        const togglePopover = (e) => {
+            e.stopPropagation();
+            popover.classList.toggle('is-active');
+        };
+
+        shareButton.addEventListener('click', togglePopover);
+        
+        document.addEventListener('click', (e) => {
+            if (!popover.contains(e.target) && !shareButton.contains(e.target)) {
+                popover.classList.remove('is-active');
+            }
+        });
+
+        shareLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const network = e.currentTarget.dataset.network;
+                const url = window.location.href;
+                const title = document.title;
+                let shareUrl;
+
+                switch(network) {
+                    case 'whatsapp':
+                        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(title + " - " + url)}`;
+                        break;
+                    case 'facebook':
+                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                        break;
+                    case 'twitter':
+                        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                        break;
+                    case 'copy':
+                        navigator.clipboard.writeText(url).then(() => {
+                            copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#2ecc71" d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>`;
+                            setTimeout(() => {
+                                copyBtn.innerHTML = shareIcons.copy;
+                            }, 2000);
+                        });
+                        return;
+                }
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            });
+        });
+    }
+
+    // --- INICIALIZAÇÃO ---
+    if (document.getElementById('gallery-grid')) {
+        setupGallerySection();
+    }
+     if (document.getElementById('course-grid')) {
+        setupScheduleSection();
+    }
+    if (document.getElementById('download-grid')) {
+        setupDownloadsSection();
+    }
+     if (document.getElementById('contact-form')) {
+        setupContactForm();
+    }
+    if (document.querySelector('.article-section')) {
+        setupImageLightbox();
+        setupSharing();
+    }
+    
+    // Funções globais
+    setupMobileMenu();
+    setupScrollAnimations();
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select-wrapper.is-open').forEach(select => {
+            select.classList.remove('is-open');
+        });
+    });
+function setupImageLightbox() {
+        const lightbox = document.getElementById('image-lightbox');
+        if (!lightbox) return;
+
+        const image = lightbox.querySelector('#lightbox-image');
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const zoomInBtn = lightbox.querySelector('#zoom-in');
+        const zoomOutBtn = lightbox.querySelector('#zoom-out');
+        const imageWrapper = lightbox.querySelector('.lightbox-image-wrapper');
+        const triggers = document.querySelectorAll('.lightbox-trigger');
+
+        let scale = 1;
+        let isDragging = false;
+        let startPos = { x: 0, y: 0 };
+        let lastPos = { x: 0, y: 0 };
+        
+        const open = (e) => {
+            e.preventDefault();
+            const imgSrc = e.currentTarget.href;
+            image.src = imgSrc;
+            lightbox.classList.add('is-visible');
+            document.body.classList.add('modal-open');
+        };
+
+        const close = () => {
+            lightbox.classList.remove('is-visible');
+            document.body.classList.remove('modal-open');
+            resetZoomAndPosition();
+        };
+
+        const updateZoom = () => {
+            image.style.transform = `scale(${scale})`;
+        };
+        
+        const resetZoomAndPosition = () => {
+            scale = 1;
+            updateZoom();
+            imageWrapper.scrollTop = 0;
+            imageWrapper.scrollLeft = 0;
+        };
+
+        const zoomIn = () => {
+            scale *= 1.2;
+            updateZoom();
+        };
+        const zoomOut = () => {
+            scale /= 1.2;
+            if (scale < 0.5) scale = 0.5;
+            updateZoom();
+        };
+        
+        const startDrag = (e) => {
+            e.preventDefault();
+            isDragging = true;
+            imageWrapper.classList.add('is-grabbing');
+            startPos = { x: e.clientX, y: e.clientY };
+            lastPos = { x: imageWrapper.scrollLeft, y: imageWrapper.scrollTop };
+        };
+
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const dx = e.clientX - startPos.x;
+                const dy = e.clientY - startPos.y;
+                imageWrapper.scrollLeft = lastPos.x - dx;
+                imageWrapper.scrollTop = lastPos.y - dy;
+            }
+        };
+
+        const endDrag = () => {
+            isDragging = false;
+            imageWrapper.classList.remove('is-grabbing');
+        };
+
+        triggers.forEach(trigger => trigger.addEventListener('click', open));
+        closeBtn.addEventListener('click', close);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) close();
+        });
+        zoomInBtn.addEventListener('click', zoomIn);
+        zoomOutBtn.addEventListener('click', zoomOut);
+        
+        imageWrapper.addEventListener('mousedown', startDrag);
+        imageWrapper.addEventListener('mousemove', drag);
+        imageWrapper.addEventListener('mouseup', endDrag);
+        imageWrapper.addEventListener('mouseleave', endDrag);
+    }
+
+    function setupSharing() {
+        const shareContainer = document.getElementById('share-container');
+        if (!shareContainer) return;
+        
+        const shareLinks = shareContainer.querySelectorAll('.share-link');
+
+        const shareIcons = {
+            whatsapp: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.3-8.8-98.1-25.4l-7-4.1-72.5 19.1 19.4-70.6-4.5-7.4c-18.5-30.7-29.9-67.4-29.9-106.1 0-107.7 87.5-195.1 195.1-195.1 53 0 101.3 20.5 137.9 57.2 36.8 36.8 57.1 86.8 57.1 139.9-.1 107.9-87.5 195.2-195.2 195.2zm101.3-138.3c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>`,
+            facebook: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>`,
+            twitter: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>`
+        };
+
+        shareLinks.forEach(link => {
+            const network = link.dataset.network;
+            link.innerHTML = shareIcons[network];
+            
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = window.location.href;
+                const title = document.title;
+                let shareUrl;
+
+                switch(network) {
+                    case 'whatsapp':
+                        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(title + " - " + url)}`;
+                        break;
+                    case 'facebook':
+                        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                        break;
+                    case 'twitter':
+                        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                        break;
+                }
+                if (shareUrl) {
+                    window.open(shareUrl, '_blank', 'width=600,height=400');
+                }
+            });
+        });
+    }
+
+    // --- INICIALIZAÇÃO ---
+    if (document.getElementById('gallery-grid')) {
+        setupGallerySection();
+    }
+     if (document.getElementById('course-grid')) {
+        setupScheduleSection();
+    }
+    if (document.getElementById('download-grid')) {
+        setupDownloadsSection();
+    }
+     if (document.getElementById('contact-form')) {
+        setupContactForm();
+    }
+    if (document.querySelector('.article-section')) {
+        setupImageLightbox();
+        setupSharing();
+    }
+    
+    // Funções globais
+    setupMobileMenu();
+    setupScrollAnimations();
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select-wrapper.is-open').forEach(select => {
+            select.classList.remove('is-open');
+        });
+    });
