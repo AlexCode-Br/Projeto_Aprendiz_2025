@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
             name="description"
-            content="Projeto Aprendiz 2025 - Inscrições abertas para Teoria Musical!"
+            content="Projeto Aprendiz 2025 - Acompanhe os momentos do nosso projeto de música."
         />
         <title>Projeto Aprendiz 2025 - ICM Salvador</title>
 
@@ -22,7 +22,7 @@
     <body>
         <header class="site-header">
             <div class="container">
-                <a href="#" class="logo-link">
+                <a href="index.html" class="logo-link">
                     <img
                         src="imagens/logo-icm-areasalvador.png"
                         alt="Logotipo do Projeto Aprendiz Maanaim Salvador"
@@ -33,12 +33,9 @@
                     <ul class="nav-list">
                         <li><a href="#sobre">Sobre</a></li>
                         <li><a href="#cursos">Cursos</a></li>
-                        <li><a href="#aviso">Aviso</a></li>
+                        <li><a href="#momentos">Momentos</a></li>
                         <li><a href="#downloads">Downloads</a></li>
                         <li><a href="#contato">Contato</a></li>
-                        <li>
-                            <a href="#inscricao" class="btn btn-primary">Inscreva-se</a>
-                        </li>
                     </ul>
                 </nav>
                 <button
@@ -62,14 +59,24 @@
                             "Tudo quanto tem fôlego louve ao Senhor. Louvai ao Senhor."
                             <br /><em>(Salmos 150:6)</em>
                         </p>
-                        <a href="#inscricao" class="btn btn-hero"
-                            >Inscreva-se em Teoria Musical</a
-                        >
+                        <a href="#momentos" class="btn btn-hero">Ver Momentos</a>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="momentos" class="section">
+                <div class="container">
+                    <h2 class="animate-on-scroll">Momentos do Projeto</h2>
+                    <p class="section-subtitle animate-on-scroll">
+                        Uma galeria de nossos eventos, aulas e confraternizações.
+                    </p>
+                    <div id="gallery-grid" class="gallery-grid animate-on-scroll">
+                        <!-- As imagens e links da galeria serão inseridos aqui pelo script.js -->
                     </div>
                 </div>
             </section>
 
-            <section id="sobre" class="section">
+            <section id="sobre" class="section bg-light">
                 <div class="container">
                     <h2 class="animate-on-scroll">Sobre o Projeto</h2>
                     <div class="content-columns">
@@ -93,11 +100,11 @@
                 </div>
             </section>
 
-            <section id="cursos" class="section bg-light">
+            <section id="cursos" class="section">
                 <div class="container">
-                    <h2 class="animate-on-scroll">Cursos</h2>
+                    <h2 class="animate-on-scroll">Cursos Oferecidos em 2025</h2>
                     <p class="section-subtitle animate-on-scroll">
-                        Use os filtros para encontrar o curso ideal para você.
+                        Veja os cursos que estão em andamento. As inscrições para novas turmas serão anunciadas futuramente.
                     </p>
 
                     <div
@@ -171,215 +178,7 @@
                 </div>
             </section>
 
-            <section id="aviso" class="section">
-                <div class="container">
-                    <h2 class="animate-on-scroll">Aviso Importante</h2>
-                    <div class="aviso-box animate-on-scroll">
-                        <h3>Inscrições para Instrumentos Finalizadas</h3>
-                        <p>As inscrições para os cursos de instrumentos foram finalizadas. Agradecemos a todos pelo interesse!</p>
-                        <p>As vagas agora estão abertas <strong>apenas para o curso de Teoria Musical</strong>, que é um pré-requisito para todos os instrumentistas.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="inscricao" class="section bg-light">
-                <div class="container">
-                    <h2 class="animate-on-scroll">Ficha de Inscrição 2025</h2>
-                    <p class="section-subtitle animate-on-scroll">
-                        As inscrições para novos alunos estão abertas <strong>apenas para o curso de Teoria Musical</strong>.<br>Este curso é um pré-requisito obrigatório para todos os instrumentistas.
-                    </p>
-                    <form
-                        id="registration-form"
-                        class="modern-form animate-on-scroll"
-                        novalidate
-                    >
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="nome-completo">Nome Completo</label>
-                                <input
-                                    type="text"
-                                    id="nome-completo"
-                                    name="nome-completo"
-                                    required
-                                />
-                                <div
-                                    class="error-message"
-                                    id="nome-error"
-                                ></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="email-inscricao">E-mail</label>
-                                <input
-                                    type="email"
-                                    id="email-inscricao"
-                                    name="email-inscricao"
-                                    required
-                                />
-                                <div
-                                    class="error-message"
-                                    id="email-error-inscricao"
-                                ></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="telefone-inscricao">Telefone (WhatsApp)</label>
-                                <input
-                                    type="tel"
-                                    id="telefone-inscricao"
-                                    name="telefone-inscricao"
-                                    placeholder="(00) 00000-0000"
-                                    required
-                                />
-                                <div
-                                    class="error-message"
-                                    id="telefone-error"
-                                ></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Igreja - Bairro</label>
-                                <div
-                                    id="custom-igreja-select"
-                                    class="custom-select-wrapper"
-                                >
-                                    <div class="custom-select-trigger" tabindex="0">
-                                        <span>Selecione a igreja</span>
-                                        <div class="arrow"></div>
-                                    </div>
-                                    <ul class="custom-select-options"></ul>
-                                </div>
-                                <div
-                                    class="error-message"
-                                    id="igreja-error"
-                                ></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Classe</label>
-                                <div
-                                    id="custom-classe-select"
-                                    class="custom-select-wrapper"
-                                >
-                                    <div class="custom-select-trigger" tabindex="0">
-                                        <span>Selecione sua classe</span>
-                                        <div class="arrow"></div>
-                                    </div>
-                                    <ul class="custom-select-options"></ul>
-                                </div>
-                                <div
-                                    class="error-message"
-                                    id="classe-error"
-                                ></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Curso de Interesse</label>
-                                <div
-                                    id="custom-instrumento-select"
-                                    class="custom-select-wrapper"
-                                >
-                                    <div class="custom-select-trigger" tabindex="0">
-                                        <span>Selecione o instrumento</span>
-                                        <div class="arrow"></div>
-                                    </div>
-                                    <ul class="custom-select-options"></ul>
-                                </div>
-                                <div
-                                    class="error-message"
-                                    id="instrumento-error"
-                                ></div>
-                            </div>
-                            <div
-                                class="form-group"
-                                id="local-curso-inscricao-group"
-                                style="display: none"
-                            >
-                                <label>Local do Curso</label>
-                                <div
-                                    id="custom-local-inscricao-select"
-                                    class="custom-select-wrapper"
-                                >
-                                    <div class="custom-select-trigger" tabindex="0">
-                                        <span>Selecione o local</span>
-                                        <div class="arrow"></div>
-                                    </div>
-                                    <ul class="custom-select-options"></ul>
-                                </div>
-                                <div
-                                    class="error-message"
-                                    id="local-error"
-                                ></div>
-                            </div>
-                            <div
-                                class="form-group"
-                                id="possui-instrumento-group"
-                                style="display: none"
-                            >
-                                <label>Você possui o instrumento?</label>
-                                <div
-                                    id="custom-possui-instrumento-select"
-                                    class="custom-select-wrapper"
-                                >
-                                    <div class="custom-select-trigger" tabindex="0">
-                                        <span>Selecione uma opção</span>
-                                        <div class="arrow"></div>
-                                    </div>
-                                    <ul class="custom-select-options"></ul>
-                                </div>
-                                <div
-                                    class="error-message"
-                                    id="possui-instrumento-error"
-                                ></div>
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Tem experiência com Música/Instrumento?</label>
-                                <div class="toggle-switch">
-                                    <input type="radio" id="exp-nao" name="tem-experiencia" value="Não" checked>
-                                    <label for="exp-nao">Não</label>
-                                    <input type="radio" id="exp-sim" name="tem-experiencia" value="Sim">
-                                    <label for="exp-sim">Sim</label>
-                                    <span class="slider" aria-hidden="true"></span>
-                                </div>
-                            </div>
-                
-                            <div
-                                class="form-group full-width"
-                                id="experiencia-group"
-                                style="display: none"
-                            >
-                                <input
-                                    type="text"
-                                    id="experiencia-relate"
-                                    name="experiencia-relate"
-                                    placeholder="Ex.: Sei um pouco de partitura, toco violão etc."
-                                />
-                            </div>
-                        </div>
-                        <div class="form-group-checkbox full-width">
-                            <input
-                                type="checkbox"
-                                id="ciencia-teoria"
-                                name="ciencia-teoria"
-                                required
-                            /><label for="ciencia-teoria"
-                                >Li a
-                                <a
-                                    href="/documents/Circular_24.pdf"
-                                    target="_blank"
-                                    style="color: #b71c1c"
-                                    >circular</a
-                                >
-                                do Projeto Aprendiz 2025 e estou ciente das
-                                orientações.</label
-                            >
-                            <div class="error-message" id="ciencia-error"></div>
-                        </div>
-                        <br />
-                        <button type="submit" class="btn btn-submit">
-                            Enviar Inscrição
-                        </button>
-                        <div id="form-status-inscricao"></div>
-                    </form>
-                </div>
-            </section>
-
-            <section id="downloads" class="section">
+            <section id="downloads" class="section bg-light">
                 <div class="container">
                     <h2 class="animate-on-scroll">Materiais para Download</h2>
                     <p class="section-subtitle animate-on-scroll">
@@ -410,7 +209,7 @@
                 </div>
             </section>
 
-            <section id="contato" class="section bg-light">
+            <section id="contato" class="section">
                 <div class="container">
                     <h2 class="animate-on-scroll">Contato</h2>
                     <p class="section-subtitle animate-on-scroll">
@@ -611,19 +410,6 @@
                 </div>
             </div>
         </div>
-
-        <div id="form-loader-inscricao" class="form-loader-overlay">
-            <div class="loader-spinner">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <div class="feedback-wrapper">
-                <div id="feedback-icon-container"></div>
-                <p id="feedback-text-container"></p>
-            </div>
-        </div>
         
         <div id="form-loader-contato" class="form-loader-overlay">
             <div class="loader-spinner">
@@ -645,3 +431,4 @@
         ></script>
     </body>
 </html>
+

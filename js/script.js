@@ -39,6 +39,35 @@ document.addEventListener('DOMContentLoaded', function() {
             { name: "Apostila de Escaleta", file: "apostilas/Apostila_Escaleta.pdf", thumbnail: "imagens/covers/Apostila_Escaleta.png" },
             { name: "Apostila de Bateria", file: "apostilas/Apostila_Bateria.pdf", thumbnail: "imagens/covers/Apostila_Bateria.png" }
         ],
+        // =================================================================== //
+        // ==  INSTRUÇÃO: AQUI VOCÊ PODE ADICIONAR AS FOTOS DA GALERIA      == //
+        // =================================================================== //
+        // Para cada foto, adicione um novo bloco {} seguindo o modelo.
+        // - imageUrl: O caminho para a sua imagem. Pode ser um link externo ou um caminho local.
+        // - title: O título que aparecerá sobre a imagem.
+        // - pageUrl: O nome do arquivo .html para o qual a imagem irá apontar (ex: "noticias/minha-noticia.html").
+        galleryImages: [
+            {
+                imageUrl: "/Projeto_Aprendiz_2025/imagens/noticias/abertura-projeto-aprendiz/inicio.jpg",
+                title: "Abertura do Projeto Aprendiz",
+                pageUrl: "noticias/abertura-2025.html"
+            },
+            {
+                imageUrl: "https://placehold.co/600x400/2c3e50/ffffff?text=Aula+de+Violão",
+                title: "Aula de Violão",
+                pageUrl: "#" // Link para uma futura página
+            },
+            {
+                imageUrl: "https://placehold.co/600x400/576574/ffffff?text=Aula+de+Teclado",
+                title: "Aula de Teclado",
+                pageUrl: "#" // Link para uma futura página
+            },
+            {
+                imageUrl: "https://placehold.co/800x400/a01818/ffffff?text=Ensaio+Geral",
+                title: "Ensaio Geral",
+                pageUrl: "#" // Link para uma futura página
+            }
+        ],
         contactTopics: [
             "Sobre o Projeto Aprendiz", "Gestão do Projeto", "Teoria Musical", "Bateria", "Canto Coral",
             "Contrabaixo", "Escaleta", "Flauta Doce", "Flauta Transversal",
@@ -432,13 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const pdfFile = card.dataset.pdfFile;
             const pdfName = card.dataset.pdfName;
     
-            // Prioritize opening the modal viewer on all devices
             if (pdfModal) {
                 pdfModal.querySelector('#pdf-modal-title').textContent = pdfName;
                 pdfModal.querySelector('#pdf-iframe').src = encodeURI(pdfFile);
                 pdfModalControls.open();
             } else {
-                // Fallback to direct download if modal doesn't exist
                 const link = document.createElement('a');
                 link.href = encodeURI(pdfFile);
                 link.download = pdfName.replace(/ /g, '_') + '.pdf';
@@ -479,6 +506,25 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSlider('download-slider-container', 'download-grid', 'download-prev', 'download-next');
     }
     
+    function setupGallerySection() {
+        const container = document.getElementById('gallery-grid');
+        if (!container || !siteData.galleryImages) return;
+
+        siteData.galleryImages.forEach((image, index) => {
+            const item = document.createElement('a');
+            item.className = `gallery-item gallery-item-${index + 1}`;
+            item.href = image.pageUrl;
+
+            item.innerHTML = `
+                <img src="${image.imageUrl}" alt="${image.title}">
+                <div class="overlay">
+                    <h3>${image.title}</h3>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
     function populateSelect(selectId, data, searchable = false) {
         const customSelect = document.getElementById(selectId);
         if (!customSelect) return;
@@ -569,7 +615,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         menuButton.addEventListener('click', toggleMenu);
         navLinks.forEach(link => link.addEventListener('click', () => {
-            if (mainNav.classList.contains('is-open')) toggleMenu();
+            // Se o link for para a mesma página, apenas fecha o menu.
+            if (link.href.includes(window.location.pathname) && mainNav.classList.contains('is-open')) {
+                // Não previne o default para permitir o scroll para a âncora
+                 toggleMenu();
+            } else if (mainNav.classList.contains('is-open')) {
+                // Se for para outra página, apenas fecha o menu. A navegação ocorrerá.
+                 toggleMenu();
+            }
         }));
     }
 
@@ -701,208 +754,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function setupRegistrationForm() {
-        const form = document.getElementById('registration-form');
-        if (!form) return;
-
-        const successIconSVG = `<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="circle" cx="26" cy="26" r="23" fill="none"/><path class="check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>`;
-        const duplicateIconSVG = `<svg class="duplicate-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="circle-error" cx="26" cy="26" r="23" fill="none"/><path class="cross-1" fill="none" d="M16 16 36 36"/><path class="cross-2" fill="none" d="M36 16 16 36"/></svg>`;
-
-        const fields = {
-            nome: { input: form['nome-completo'], error: document.getElementById('nome-error') },
-            email: { input: form['email-inscricao'], error: document.getElementById('email-error-inscricao') },
-            telefone: { input: form['telefone-inscricao'], error: document.getElementById('telefone-error') },
-            igreja: { wrapper: document.getElementById('custom-igreja-select'), error: document.getElementById('igreja-error') },
-            classe: { wrapper: document.getElementById('custom-classe-select'), error: document.getElementById('classe-error') },
-            instrumento: { wrapper: document.getElementById('custom-instrumento-select'), error: document.getElementById('instrumento-error') },
-            local: { wrapper: document.getElementById('custom-local-inscricao-select'), error: document.getElementById('local-error') },
-            possuiInstrumento: { wrapper: document.getElementById('custom-possui-instrumento-select'), error: document.getElementById('possui-instrumento-error') },
-            ciencia: { input: form['ciencia-teoria'], error: document.getElementById('ciencia-error') }
-        };
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        function updateFormVisibility(selectedInstrumento) {
-            const possuiInstrumentoGroup = document.getElementById('possui-instrumento-group');
-            const localGroup = document.getElementById('local-curso-inscricao-group');
-            
-            if (selectedInstrumento === 'Teoria Musical') {
-                if (possuiInstrumentoGroup) possuiInstrumentoGroup.style.display = 'none';
-                if (localGroup) localGroup.style.display = 'none';
-            } else {
-                const needsInstrument = selectedInstrumento !== 'Canto Coral';
-                if (possuiInstrumentoGroup) {
-                    possuiInstrumentoGroup.style.display = needsInstrument ? 'block' : 'none';
-                }
-
-                const curso = siteData.courses.find(c => c.name === selectedInstrumento);
-                if (curso && curso.locations && curso.locations.length > 0) {
-                     if (localGroup) localGroup.style.display = 'block';
-                } else {
-                    if (localGroup) localGroup.style.display = 'none';
-                }
-            }
-        }
-
-        function validateField(field, name) {
-            let isValid = true;
-            let errorMessage = '';
-            if (!field || (!field.input && !field.wrapper)) return true;
-
-            const targetElement = field.input || field.wrapper.querySelector('.custom-select-trigger');
-            if (field.input) {
-                if (field.input.type === 'checkbox') { if (!field.input.checked) { isValid = false; errorMessage = 'Você precisa estar ciente para se inscrever.'; } }
-                else {
-                    const value = field.input.value.trim();
-                    if (value === '') { isValid = false; errorMessage = 'Este campo é obrigatório.'; }
-                    else if (name === 'nome' && value.split(' ').filter(n => n).length < 2) { isValid = false; errorMessage = 'Por favor, insira seu nome completo.'; }
-                    else if (name === 'email' && !emailRegex.test(value)) { isValid = false; errorMessage = 'Por favor, insira um e-mail válido.'; }
-                }
-            } else if (field.wrapper) {
-                const parentGroup = field.wrapper.closest('.form-group');
-                if (parentGroup && window.getComputedStyle(parentGroup).display !== 'none') {
-                    if (!field.wrapper.getAttribute('data-selected-value')) { isValid = false; errorMessage = 'Por favor, selecione uma opção.'; }
-                }
-            }
-
-            if (field.error) {
-                field.error.textContent = errorMessage;
-                field.error.style.display = isValid ? 'none' : 'block';
-            }
-            if(targetElement) targetElement.classList.toggle('invalid', !isValid);
-
-            return isValid;
-        }
-
-        Object.keys(fields).forEach(fieldName => {
-            const field = fields[fieldName];
-            if (field && field.input) { field.input.addEventListener('blur', () => { validateField(field, fieldName); }); }
-        });
-
-        if (fields.telefone.input) {
-            fields.telefone.input.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '').substring(0, 11);
-                if (value.length > 10) { value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3'); }
-                else if (value.length > 6) { value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3'); }
-                else if (value.length > 2) { value = value.replace(/^(\d{2})(\d{0,5})$/, '($1) $2'); }
-                e.target.value = value;
-            });
-        }
-
-        const bairros = [
-            "Alto da Terezinha", "Alto de Coutos", "Bairro Novo", "Boca do Rio", "Brotas",
-            "Campinas de Pirajá", "Cidade Baixa", "Cidade Nova", "Fazenda Coutos", "Fazenda Grande",
-            "Garcia", "Guarani", "Iapi", "Itaigara", "Itapuã I", "Itapuã II", "Jardim Terra Nova",
-            "Jardim Valéria", "Lobato", "Luiz Alselmo", "Mirantes de Periperi", "Pero Vaz",
-            "Pituba", "São Cristovão", "São Marcos", "Vista Alegre"
-        ].sort();
-
-        populateSelect('custom-igreja-select', bairros, true);
-        populateSelect('custom-classe-select', ["Intermediário", "Adolescente", "Jovem", "Senhora", "Varão"], true);
-        
-        populateSelect('custom-instrumento-select', ["Teoria Musical"]);
-        
-        populateSelect('custom-possui-instrumento-select', ["Sim, é meu próprio", "Não possuo", "Sim, mas é emprestado"]);
-
-        setupCustomSelect('custom-igreja-select', () => validateField(fields.igreja));
-        setupCustomSelect('custom-classe-select', () => validateField(fields.classe));
-        
-        const instrumentoWrapper = document.getElementById('custom-instrumento-select');
-        const instrumentoTrigger = instrumentoWrapper.querySelector('.custom-select-trigger');
-        const instrumentoTriggerText = instrumentoTrigger.querySelector('span');
-
-        instrumentoTriggerText.textContent = 'Teoria Musical';
-        instrumentoWrapper.setAttribute('data-selected-value', 'Teoria Musical');
-        instrumentoWrapper.classList.add('is-disabled');
-        instrumentoTrigger.style.pointerEvents = 'none';
-
-        setupCustomSelect('custom-possui-instrumento-select', () => validateField(fields.possuiInstrumento));
-        setupCustomSelect('custom-local-inscricao-select', () => validateField(fields.local));
-
-        form.querySelectorAll('input[name="tem-experiencia"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                document.getElementById('experiencia-group').style.display = e.target.value === 'Sim' ? 'block' : 'none';
-            });
-        });
-
-        updateFormVisibility('Teoria Musical');
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            if (!Object.keys(fields).every(name => validateField(fields[name], name))) return;
-
-            const loaderOverlay = document.getElementById('form-loader-inscricao');
-            const iconContainer = loaderOverlay.querySelector('#feedback-icon-container');
-            const textContainer = loaderOverlay.querySelector('#feedback-text-container');
-
-            loaderOverlay.classList.remove('success', 'duplicate');
-            iconContainer.innerHTML = ''; textContainer.textContent = '';
-            loaderOverlay.classList.add('show', 'loading');
-
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzzgUopilmGbdrYItIPPk3DvONehOQG4KpNyzhuK7sXmw2-5Utg2RPcwIqYHVu666SGhQ/exec';
-
-            const formData = new FormData(form);
-
-            formData.set('igreja', fields.igreja.wrapper.getAttribute('data-selected-value') || "");
-            formData.set('classe', fields.classe.wrapper.getAttribute('data-selected-value') || "");
-            formData.set('instrumento', fields.instrumento.wrapper.getAttribute('data-selected-value') || "");
-            formData.set('local', "Remoto");
-            formData.set('possui-instrumento', "N/A");
-
-            fetch(scriptURL, { method: 'POST', body: formData})
-                .then(response => response.json())
-                .then(data => {
-                    loaderOverlay.classList.remove('loading');
-                    if (data.result === 'success') {
-                        iconContainer.innerHTML = successIconSVG;
-                        textContainer.textContent = "Inscrição enviada com sucesso!";
-                        loaderOverlay.classList.add('success');
-                        setTimeout(() => {
-                            loaderOverlay.classList.remove('show', 'success');
-                            form.reset();
-                            document.querySelectorAll('#registration-form .custom-select-wrapper').forEach(wrapper => {
-                                const triggerText = wrapper.querySelector('.custom-select-trigger span');
-                                const placeholderMap = {
-                                    'custom-igreja-select': 'Selecione a igreja',
-                                    'custom-classe-select': 'Selecione sua classe',
-                                    'custom-possui-instrumento-select': 'Selecione uma opção'
-                                };
-                                if (wrapper.id !== 'custom-instrumento-select') {
-                                    triggerText.textContent = placeholderMap[wrapper.id] || 'Selecione';
-                                    wrapper.removeAttribute('data-selected-value');
-                                }
-                            });
-                            document.getElementById('experiencia-group').style.display = 'none';
-                            updateFormVisibility('Teoria Musical');
-                        }, 4000);
-                    } else if (data.result === 'duplicate_course' || data.result === 'limit_reached') {
-                        iconContainer.innerHTML = duplicateIconSVG;
-                        textContainer.textContent = data.message;
-                        loaderOverlay.classList.add('duplicate');
-                        const timeout = data.result === 'limit_reached' ? 5000 : 4000;
-                        setTimeout(() => loaderOverlay.classList.remove('show', 'duplicate'), timeout);
-                    } else {
-                        throw new Error(data.message || 'Ocorreu um erro desconhecido.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error!', error);
-                    loaderOverlay.classList.remove('loading');
-                    loaderOverlay.classList.add('duplicate'); 
-
-                    const iconContainer = loaderOverlay.querySelector('#feedback-icon-container');
-                    const textContainer = loaderOverlay.querySelector('#feedback-text-container');
-                    
-                    if (iconContainer) iconContainer.innerHTML = duplicateIconSVG; 
-                    if (textContainer) textContainer.textContent = 'Ocorreu um erro. Tente novamente.';
-
-                    setTimeout(() => {
-                        loaderOverlay.classList.remove('show', 'duplicate');
-                    }, 5000);
-                });
-        });
-    }
-
     function setupScrollAnimations() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -920,11 +771,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- INICIALIZAÇÃO ---
+    // Apenas inicializa funções se estiver na página certa
+    if (document.getElementById('gallery-grid')) {
+        setupGallerySection();
+    }
+     if (document.getElementById('course-grid')) {
+        setupScheduleSection();
+    }
+    if (document.getElementById('download-grid')) {
+        setupDownloadsSection();
+    }
+     if (document.getElementById('contact-form')) {
+        setupContactForm();
+    }
+    
+    // Funções globais
     setupMobileMenu();
-    setupScheduleSection();
-    setupDownloadsSection();
-    setupContactForm();
-    setupRegistrationForm();
     setupScrollAnimations();
 
     window.addEventListener('click', () => {
@@ -933,3 +795,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
